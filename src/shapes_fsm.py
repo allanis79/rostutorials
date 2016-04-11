@@ -2,6 +2,7 @@
 import rospy
 from smach import State,StateMachine
 from time import sleep
+import smach_ros
 
 class Drive(State):
 	def __init__(self, distance):
@@ -21,6 +22,7 @@ class Turn(State):
 		sleep(1)
 		return 'success'
 if __name__ == '__main__':
+	rospy.init_node('state_machines')
 	triangle = StateMachine(outcomes=['success'])
 	with triangle:
 		StateMachine.add('SIDE1', Drive(1), transitions={'success':'TURN1'})
@@ -41,4 +43,8 @@ if __name__ == '__main__':
 	with shapes:
 		StateMachine.add('TRIANGLE', triangle, transitions={'success':'SQUARE'})
 		StateMachine.add('SQUARE', square, transitions={'success':'success'})
+	sis = smach_ros.IntrospectionServer('server_name', shapes, '/SM_ROOT')
+	sis.start()
 	shapes.execute()
+	#rospy.spin()
+	sis.stop()
